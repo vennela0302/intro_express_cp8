@@ -60,3 +60,12 @@ app.get("/todos/", async (req, res) => {
   getResult = await db.all(getTodosQuery);
   res.send(getResult);
 });
+// API 2
+
+app.get("/todos/:todoId/", async (req, res) => {
+  const { todoId } = req.params;
+  const getTodoQuery = `
+  SELECT * FROM todo WHERE id = ${todoId} `;
+  const getResult = await db.get(getTodoQuery);
+  res.send(getResult);
+});
