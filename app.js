@@ -5,6 +5,7 @@ const sqlite3 = require("sqlite3");
 
 const app = express();
 app.use(express.json());
+
 const dbPath = path.join(__dirname, "todoApplication.db");
 
 let db = null;
@@ -25,30 +26,37 @@ const initializeDBAndServer = async () => {
 };
 initializeDBAndServer();
 
+const hasGivenPriorityAndStatus = (reqQuery) => {
+  return reqQuery.status !== undefined && reqQuery.priority !== undefined;
+};
+const hasGivenStatus = (reqQuery) => {
+  return reqQuery.status !== undefined;
+};
+const hasGivenPriority = (reqQuery) => {
+  return reqQuery.priority !== undefined;
+};
+
 app.get("/todos/", async (req, res) => {
-  let data = null;
-  let getTodoQuery = "";
+  let getResult = null;
+  let getTodosQuery = "";
   const { search_q = "", priority, status } = req.query;
-
   switch (true) {
-    case hasStatusProperty(req.query):
-      getTodoQuery = `
-SELECT * FROM todo WHERE todo LIKE '%${search_q}%' status = '${status}'`;
-      break;
-    case hasPriorityProperty(req.query):
-      getTodoQuery = `
-SELECT * FROM todo WHERE todo LIKE '%${search_q}%' AND priority = '${priority}'`;
-      break;
-    case hasPriorityStatusProperty(req.query):
-      getTodoQuery = `
-SELECT * FROM todo WHERE todo LIKE '%${search_q}%' AND priority = '${priority}' AND status = '${status}'`;
+    case hasGivenPriorityAndStatus(req.query):
+      getTodosQuery = `
+      SELECT * FROM todo WHERE todo LIKE '%${search_q}%' AND priority = '${priority}' AND status = '${status}'; `;
       break;
 
+    case hasGivenPriority(req.query):
+      getTodosQuery = `
+      SELECT * FROM todo WHERE todo LIKE '%${search_q}%' AND priority = '${priority}';`;
+      break;
+    case hasGivenStatus(req.query):
+      getTodosQuery = `
+      SELECT * FROM todo WHERE todo LIKE '%${search_q}%' AND status = '${status}';`;
+      break;
     default:
-      getTodoQuery = `
-SELECT * FROM todo WHERE todo LIKE '%${search_q}%'`;
+      getTodosQuery = `SELECT * FROM todo WHERE todo LIKE '%${search_q}%';`;
   }
-
-  getTodo = await db.all(getTodoQuery);
-  res.send(getTodo);
+  getResult = await db.all(getTodosQuery);
+  res.send(getResult);
 });
