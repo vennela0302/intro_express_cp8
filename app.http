@@ -9,3 +9,6 @@ GET http://localhost:3000/todos/?priority=HIGH&status=IN%20PROGRESS
 ###
 
 GET http://localhost:3000/todos/?search_q=Play
+###
+
+GET http://localhost:3000/todos/2
