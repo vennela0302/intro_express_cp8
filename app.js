@@ -70,7 +70,7 @@ app.get("/todos/:todoId/", async (req, res) => {
   res.send(getResult);
 });
 
-// API 3 
+// API 3
 app.post("/todos/", async (req, res) => {
   const { id, todo, priority, status } = req.params;
   const createTodoQuery = `
@@ -79,3 +79,49 @@ app.post("/todos/", async (req, res) => {
   await db.run(createTodoQuery);
   res.send("Todo Successfully Added");
 });
+
+// API 4
+app.put("/todos/:todoId/", async (req, res) => {
+  const { todoId } = req.params;
+  let updateCol = "";
+  const requestBody = req.body;
+
+  switch (true) {
+    case requestBody.status !== undefined:
+      updateCol = "Status";
+      break;
+    case requestBody.priority !== undefined:
+      updateCol = "Priority";
+      break;
+    case requestBody.todo !== undefined:
+      updateCol = "Todo";
+      break;
+  }
+  const previousTodoQuery = `
+  SELECT * FROM todo WHERE id = ${todoId};`;
+  const previousTodo = await db.get(previousTodoQuery);
+
+  const {
+    todo = previousTodo.todo,
+    priority = previousTodo.priority,
+    status = previousTodo.status,
+  } = req.body;
+
+  const updateTodoQuery = `
+    UPDATE todo SET todo = '${todo}',priority='${priority}',status='${status}' WHERE id = ${todoId};`;
+  await db.run(updateTodoQuery);
+
+  res.send(`${updateCol} Updated`);
+});
+
+// API 5
+
+app.delete("/todos/:todoId/", async (req, res) => {
+  const { todoId } = req.params;
+  const deleteTodoQuery = `
+  DELETE FROM todo WHERE id = ${todoId};`;
+  await db.run(deleteTodoQuery);
+  res.send("Todo Deleted");
+});
+
+module.exports = app;
