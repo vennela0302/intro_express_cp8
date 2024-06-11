@@ -72,7 +72,7 @@ app.get("/todos/:todoId/", async (req, res) => {
 
 // API 3
 app.post("/todos/", async (req, res) => {
-  const { id, todo, priority, status } = req.params;
+  const { id, todo, priority, status } = req.body;
   const createTodoQuery = `
     INSERT INTO todo (id, todo, priority, status)
     VALUES(${id},'${todo}', '${priority}','${status}');`;
